@@ -1,19 +1,22 @@
 import ast
-from app.tools import read_file, write_file, extract_definitions
+from app.tools import extract_definitions
 from app.models import generate_docstring_with_llm
 
 
 class DocstringAgent:
 
-    def add_docstrings(self, file_path: str):
-        code = read_file(file_path)
-        tree = ast.parse(code)
+    def process_code(self, code: str) -> str:
+        """
+        Takes Python code and inserts generated docstrings.
+        """
 
         lines = code.split("\n")
 
         for node in extract_definitions(code):
+
+            # Skip if already has docstring
             if ast.get_docstring(node):
-                continue  # skip if already has docstring
+                continue
 
             snippet = ast.get_source_segment(code, node)
             doc = generate_docstring_with_llm(snippet)
@@ -24,7 +27,4 @@ class DocstringAgent:
             insert_line = node.body[0].lineno - 1
             lines.insert(insert_line, docstring)
 
-        new_code = "\n".join(lines)
-        write_file(file_path, new_code)
-
-        print("✅ Docstrings added successfully!")
+        return "\n".join(lines)
