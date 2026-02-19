@@ -1,12 +1,11 @@
-FROM python:3.11-slim
+version: "3.9"
 
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-ENV PYTHONPATH=/app
-
-CMD ["python", "-m", "app", "sample.py"]
+services:
+  docstring-webapp:
+    build: .
+    container_name: docstring-webapp
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    restart: unless-stopped
